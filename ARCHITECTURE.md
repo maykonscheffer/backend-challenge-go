@@ -1,10 +1,9 @@
 # Decisões e limites
 
-## Escopo e autoria
+## Escopo
 
 Solução que cobre processamento financeiro HTTP/SQS, recuperação e auditoria verificáveis. Não há alegação de atendimento integral ao enunciado,
-nem de prontidão para produção. A pasta de pesquisa com soluções de terceiros não integra
-este projeto; o código foi escrito para esta entrega.
+nem de prontidão para produção.
 
 ## Dinheiro e domínio
 

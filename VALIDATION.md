@@ -273,3 +273,41 @@ Go vet ./... passou sem diagnósticos.
 Não foi repetida a execução completa com volumes novos: ela pertence ao bloco
 anterior. A migration nova foi validada no teste de banco novo e no upgrade do
 ambiente local existente. Nenhum ZIP, commit ou publicação realizado neste bloco.
+
+## Revisão documental e suíte completa final — 18/10/2026
+
+Código financeiro e funcionalidades inalterados. Containers das três APIs
+reconstruídos e recriados com o código da branch main (ea43321); apenas documentos
+receberam ajustes locais. Tracing habilitado nas APIs e Jaeger disponível.
+Volumes existentes preservados; esta execução não equivale a um ambiente de volumes novos.
+
+Comandos executados, em ordem (na raiz do projeto):
+
+```sh
+docker compose -f compose.yaml -f compose.tracing.yaml up -d --build --force-recreate app1 app2 app3 jaeger
+docker compose -f compose.yaml -f compose.tracing.yaml --profile test run --rm --no-deps -e TEST_TRACE_QUERY_URL=http://jaeger:16686 tests go test -race -count=1 ./...
+docker compose -f compose.yaml -f compose.tracing.yaml --profile test run --rm --no-deps tests go vet ./...
+```
+
+Build/recriação concluídos. Suíte completa: código de saída 0, sem falhas.
+O endpoint TEST_TRACE_QUERY_URL ativa o teste real de HTTP/SQS/outbox no Jaeger.
+
+| Pacote | Resultado |
+|---|---|
+| cmd/dashboard | PASS — 1,687s |
+| internal/bootstrap | PASS — 1,089s |
+| internal/domain | PASS — 1,014s |
+| internal/httpapi | PASS — 1,019s |
+| internal/messaging | PASS — 3,386s |
+| internal/store | PASS — 1,015s |
+| internal/telemetry | PASS — 1,034s |
+| test (integração) | PASS — 54,845s |
+
+cmd/api, cmd/benchmark e migrations não têm testes próprios nesses pacotes;
+a migração é exercitada pelos testes de integração. Go vet: saída 0, sem diagnósticos.
+Scripts separados de IAM, reinício e indisponibilidade não foram repetidos neste bloco;
+suas evidências anteriores permanecem acima. O benchmark também não foi repetido.
+
+Logs locais excluídos do Git: test-results/final-review-build.txt,
+final-review-tests.txt e final-review-vet.txt. Links locais do README e da matriz
+REQUIREMENTS.md conferidos, sem destinos ausentes.

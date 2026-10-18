@@ -2,8 +2,8 @@
 
 Opcionais implementados e validados: benchmark HTTP (BENCHMARK.md), dashboard local
 (DASHBOARD.md) e OpenTelemetry HTTP/SQS/outbox com Jaeger local (TRACING.md).
-Partidas dobradas permanecem ausentes. O bloco de tracing passou pelos testes
-específicos e pelas regressões afetadas; resultados em VALIDATION.md.
+Partidas dobradas permanecem ausentes. A suíte completa final com tracing ativo e APIs reconstruídas passou com -race;
+go vet também passou. Comandos e resultados em VALIDATION.md.
 
 Fonte: https://github.com/junglegaming/backend-challenge-go/blob/main/README.md
 
@@ -27,7 +27,7 @@ Este documento substitui as marcações antigas da auditoria. A implementação 
 | 10. Consumidor | FAILED segue à DLQ antes do delete. Teste real reenvia envelope, confirma duas entregas e um único efeito/evento. SIGTERM real em subprocesso após commit conclui mensagem ativa e deixa a próxima na fila. |
 | 11. Publicador/eventos | Dois publishers ativos disputam outbox sob barreira; outra carteira progride. Testes de crash antes/depois do envio preservam eventId. Eventos têm tipos Go distintos e contratos financeiros tipados. |
 | 12. Observabilidade | Logs JSON com correlação SQS; métricas de status, duplicatas HTTP/SQS, retries, DLQ, conflitos SQL, latência HTTP/SQS, lag e divergência. Lock timeout real verifica incremento do contador SQL. Tracing HTTP/SQS/outbox validado em coletor real; ativação opcional. |
-| 13. Testes | Suíte completa com -race aprovada antes do tracing; após o tracing, testes específicos e regressões afetadas aprovados. Unitários de zero, moedas, erros, abertura, metadata e reidratação. Integração real inclui auth, constraints, inbox/outbox, crashes, SIGTERM, pendências e FAILED. |
+| 13. Testes | Suíte completa final com -race aprovada após reconstrução das APIs, incluindo tracing ponta a ponta. Unitários de zero, moedas, erros, abertura, metadata e reidratação. Integração real inclui auth, constraints, inbox/outbox, crashes, SIGTERM, pendências e FAILED. |
 | 14. Avaliação | Nenhuma violação eliminatória identificada nos cenários testados. Não equivale a certificação de ausência de defeitos ou aprovação do avaliador. Opcional não implementado: partidas dobradas. |
 | 15. Entrega | Código, Compose, migrations, env de exemplo e documentação locais. Entrega pelo fork público maykonscheffer/backend-challenge-go. ZIP não faz parte da entrega. |
 
@@ -52,7 +52,7 @@ constraints, workers, testes e instruções de execução. Nenhum requisito obri
 pendente foi identificado nesta conferência. Partidas dobradas foram explicitamente
 excluídas da implementação por serem opcionais; benchmark, dashboard e tracing permanecem.
 A validação mais recente do tracing e das regressões afetadas está em VALIDATION.md.
-Esta revisão não repetiu testes nem alterou regras financeiras.
+A conferência inicial não repetiu testes. Posteriormente, a revisão documental final executou a suíte completa e go vet com APIs reconstruídas, sem alterar regras financeiras.
 
 Antes da entrega externa: conferir a seleção final do Git, criar o commit, publicar
 o repositório e enviar seu link. A publicação depende de autorização do responsável.

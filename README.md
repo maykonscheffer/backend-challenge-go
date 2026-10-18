@@ -5,6 +5,27 @@ A cobertura demonstrada e as limitações estão em [REQUIREMENTS.md](REQUIREMEN
 
 Enunciado original: [CHALLENGE.md](CHALLENGE.md).
 
+## Execução rápida
+
+Requer Docker com Compose v2 e engine Linux (Docker Desktop com WSL2 no Windows).
+Na raiz do repositório:
+
+```sh
+docker compose up --build -d
+docker compose --profile test run --rm --no-deps tests
+docker compose --profile test run --rm --no-deps tests go vet ./...
+```
+
+O ambiente inicia PostgreSQL, Keycloak, MiniStack e três APIs (portas 8080–8082).
+O primeiro comando aplica as migrations; o segundo executa a suíte com `-race`.
+As credenciais fornecidas são apenas de demonstração local. Exemplos autenticados
+estão em [Demonstração no PowerShell](#demonstração-no-powershell).
+
+- [Requisitos, código e testes](REQUIREMENTS.md)
+- [Decisões e limitações](ARCHITECTURE.md)
+- [Resultados das validações](VALIDATION.md)
+- [Benchmark](BENCHMARK.md), [dashboard](DASHBOARD.md) e [tracing opcional](TRACING.md)
+
 ## Implementado
 
 Opcionais disponíveis: [benchmark HTTP reproduzível](BENCHMARK.md),
@@ -23,7 +44,7 @@ Partidas dobradas não estão implementadas.
 
 ## Limitações importantes
 
-**Validação:** suíte completa com `-race` e execução com volumes novos aprovadas antes do tracing. Após sua inclusão, testes específicos, regressões afetadas e `go vet` passaram. Consulte REQUIREMENTS.md e VALIDATION.md para a cobertura e as limitações.
+**Validação final:** suíte completa com `-race -count=1` e `go vet ./...` aprovados após reconstrução das três APIs, com tracing ativo e integração real com Jaeger. Os volumes existentes foram preservados; a execução com volumes novos está registrada separadamente. Consulte [VALIDATION.md](VALIDATION.md) para comandos e resultados.
 Referência ausente fica em `PENDING_REFERENCE`; após 24h sem conclusão, termina rejeitada.
 Os eventos são publicados em `wallet-events.fifo` via outbox. Readiness verifica
 PostgreSQL/migration e acesso às filas SQS de entrada e saída.
