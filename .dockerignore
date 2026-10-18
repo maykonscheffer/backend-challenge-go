@@ -1,0 +1,12 @@
+.git
+bin
+test-results
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials
+credentials.*
+*.log
+SECURITY_REVIEW.md

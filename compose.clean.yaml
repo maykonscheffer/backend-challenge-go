@@ -1,0 +1,12 @@
+# Integration clients use the private network; avoid collisions with the main stack.
+services:
+  postgres:
+    ports: !reset []
+  keycloak:
+    ports: !reset []
+  app1:
+    ports: !reset []
+  app2:
+    ports: !reset []
+  app3:
+    ports: !reset []

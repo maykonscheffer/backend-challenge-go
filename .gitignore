@@ -1,0 +1,13 @@
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials
+credentials.*
+*.log
+bin/
+*.exe
+coverage.out
+test-results/
+SECURITY_REVIEW.md

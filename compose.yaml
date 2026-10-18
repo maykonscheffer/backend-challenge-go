@@ -1,0 +1,116 @@
+name: maykon-wallet
+x-app: &app
+  build: .
+  environment:
+    DATABASE_URL: postgres://wallet_app:local-app-password@postgres:5432/wallet?sslmode=disable
+    OIDC_ISSUER: http://localhost:8180/realms/wallet
+    OIDC_JWKS_URL: http://keycloak:8080/realms/wallet/protocol/openid-connect/certs
+    OIDC_AUDIENCE: wallet-api
+    HTTP_ADDR: :8080
+    SQS_ENDPOINT: http://ministack:4566
+    AWS_REGION: us-east-1
+    AWS_PROFILE: wallet-service
+    AWS_SHARED_CREDENTIALS_FILE: /credentials/credentials
+    SQS_ALLOWED_PROVIDERS: provider-a,provider-b
+  volumes: ["brokercredentials:/credentials:ro"]
+  depends_on:
+    migrate:
+      condition: service_completed_successfully
+    keycloak:
+      condition: service_started
+    ministack:
+      condition: service_healthy
+    broker-init:
+      condition: service_completed_successfully
+services:
+  ministack:
+    # Hypercorn drains requests before MiniStack writes its persisted state.
+    stop_grace_period: 60s
+    image: ministackorg/ministack@sha256:96c660168dc5b2bb18ce715c3e9e798c7d07f7d495fce409c59e342ac3953c08
+    environment:
+      MINISTACK_HOST: ministack
+      PERSIST_STATE: "1"
+      AUTH: "true"
+      AWS_ACCESS_KEY_ID: local
+      AWS_SECRET_ACCESS_KEY: local
+    volumes: ["sqsdata:/tmp/ministack-state"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:4566/_ministack/health')"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  broker-init:
+    image: ministackorg/ministack@sha256:96c660168dc5b2bb18ce715c3e9e798c7d07f7d495fce409c59e342ac3953c08
+    entrypoint: ["python", "/bootstrap/broker-init.py"]
+    environment:
+      AWS_ACCESS_KEY_ID: local
+      AWS_SECRET_ACCESS_KEY: local
+      AWS_DEFAULT_REGION: us-east-1
+    volumes: ["./deploy:/bootstrap:ro", "brokercredentials:/credentials"]
+    depends_on:
+      ministack:
+        condition: service_healthy
+  postgres:
+    image: postgres:17.6-bookworm
+    environment:
+      POSTGRES_DB: wallet
+      POSTGRES_USER: wallet_owner
+      POSTGRES_PASSWORD: local-owner-password
+    ports: ["127.0.0.1:15432:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./deploy/init.sql:/docker-entrypoint-initdb.d/001.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wallet_owner -d wallet"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.3.3
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: local-admin-password
+      KC_HOSTNAME: http://localhost:8180
+      KC_HTTP_ENABLED: "true"
+    ports: ["127.0.0.1:8180:8080"]
+    volumes:
+      - ./deploy/realm.json:/opt/keycloak/data/import/realm.json:ro
+  migrate:
+    build: .
+    command: ["migrate", "up"]
+    environment:
+      DATABASE_URL: postgres://wallet_owner:local-owner-password@postgres:5432/wallet?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+  app1:
+    <<: *app
+    ports: ["127.0.0.1:8080:8080"]
+  app2:
+    <<: *app
+    ports: ["127.0.0.1:8081:8080"]
+  app3:
+    <<: *app
+    ports: ["127.0.0.1:8082:8080"]
+  tests:
+    image: golang:1.27.0-bookworm
+    profiles: ["test"]
+    working_dir: /src
+    volumes: [".:/src", "gomod:/go/pkg/mod", "gobuild:/root/.cache/go-build"]
+    environment:
+      TEST_API_URLS: http://app1:8080,http://app2:8080,http://app3:8080
+      TEST_TOKEN_URL: http://keycloak:8080/realms/wallet/protocol/openid-connect/token
+      TEST_DATABASE_URL: postgres://wallet_owner:local-owner-password@postgres:5432/wallet?sslmode=disable
+      TEST_SQS_ENDPOINT: http://ministack:4566
+      AWS_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: local
+      AWS_SECRET_ACCESS_KEY: local
+    command: ["go", "test", "-race", "-count=1", "./..."]
+    depends_on: [app1, app2, app3]
+volumes:
+  brokercredentials:
+  sqsdata:
+  pgdata:
+  gomod:
+  gobuild:

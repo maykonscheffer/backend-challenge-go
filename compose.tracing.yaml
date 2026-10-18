@@ -1,0 +1,16 @@
+# Optional local collector; use together with compose.yaml.
+x-tracing: &tracing
+  OTEL_ENABLED: "true"
+  OTEL_SERVICE_NAME: wallet-api
+  OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://jaeger:4318/v1/traces
+services:
+  jaeger:
+    image: cr.jaegertracing.io/jaegertracing/jaeger:2.22.0
+    ports: ["127.0.0.1:16686:16686"]
+    mem_limit: 512m
+  app1:
+    environment: *tracing
+  app2:
+    environment: *tracing
+  app3:
+    environment: *tracing

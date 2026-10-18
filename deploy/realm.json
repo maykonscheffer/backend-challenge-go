@@ -1,0 +1,109 @@
+{
+  "realm": "wallet",
+  "clients": [
+    {
+      "directAccessGrantsEnabled": false,
+      "publicClient": false,
+      "secret": "local-internal-service-secret",
+      "protocolMappers": [
+        {
+          "name": "wallet-audience",
+          "protocol": "openid-connect",
+          "config": {
+            "id.token.claim": "false",
+            "included.custom.audience": "wallet-api",
+            "access.token.claim": "true"
+          },
+          "protocolMapper": "oidc-audience-mapper"
+        }
+      ],
+      "serviceAccountsEnabled": true,
+      "protocol": "openid-connect",
+      "enabled": true,
+      "clientId": "internal-service",
+      "standardFlowEnabled": false
+    },
+    {
+      "directAccessGrantsEnabled": false,
+      "publicClient": false,
+      "secret": "local-provider-a-secret",
+      "protocolMappers": [
+        {
+          "name": "wallet-audience",
+          "protocol": "openid-connect",
+          "config": {
+            "id.token.claim": "false",
+            "included.custom.audience": "wallet-api",
+            "access.token.claim": "true"
+          },
+          "protocolMapper": "oidc-audience-mapper"
+        }
+      ],
+      "serviceAccountsEnabled": true,
+      "protocol": "openid-connect",
+      "enabled": true,
+      "clientId": "provider-a",
+      "standardFlowEnabled": false
+    },
+    {
+      "directAccessGrantsEnabled": false,
+      "publicClient": false,
+      "secret": "local-provider-b-secret",
+      "protocolMappers": [
+        {
+          "name": "wallet-audience",
+          "protocol": "openid-connect",
+          "config": {
+            "id.token.claim": "false",
+            "included.custom.audience": "wallet-api",
+            "access.token.claim": "true"
+          },
+          "protocolMapper": "oidc-audience-mapper"
+        }
+      ],
+      "serviceAccountsEnabled": true,
+      "protocol": "openid-connect",
+      "enabled": true,
+      "clientId": "provider-b",
+      "standardFlowEnabled": false
+    }
+  ],
+  "enabled": true,
+  "accessTokenLifespan": 300,
+  "roles": {
+    "realm": [
+      {
+        "name": "wallet-internal"
+      },
+      {
+        "name": "provider"
+      }
+    ]
+  },
+  "users": [
+    {
+      "realmRoles": [
+        "wallet-internal"
+      ],
+      "enabled": true,
+      "serviceAccountClientId": "internal-service",
+      "username": "service-account-internal-service"
+    },
+    {
+      "realmRoles": [
+        "provider"
+      ],
+      "enabled": true,
+      "serviceAccountClientId": "provider-a",
+      "username": "service-account-provider-a"
+    },
+    {
+      "realmRoles": [
+        "provider"
+      ],
+      "enabled": true,
+      "serviceAccountClientId": "provider-b",
+      "username": "service-account-provider-b"
+    }
+  ]
+}
