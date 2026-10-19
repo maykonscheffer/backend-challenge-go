@@ -1,5 +1,18 @@
-# Execuções verificadas — 17/10/2026
+# Execuções verificadas
 
+## Status atual — 18/10/2026
+
+- **Suíte completa aprovada:** `go test -race -count=1 ./...`, após reconstrução e recriação das três APIs, com tracing ativo e integração real com Jaeger.
+- **Análise estática aprovada:** `go vet ./...`, sem diagnósticos.
+- **Ambiente:** volumes existentes preservados. A execução com volumes novos pertence a uma validação anterior, registrada abaixo.
+- **Publicação:** projeto disponível no [GitHub](https://github.com/maykonscheffer/backend-challenge-go). Isso não confirma o envio do formulário do processo seletivo.
+- **Escopo desta atualização:** somente documentação; código inalterado e testes não repetidos.
+
+Os comandos e resultados da última suíte estão na seção **Revisão documental e suíte completa final — 18/10/2026**, ao final deste arquivo. Scripts separados de IAM, reinício e indisponibilidade mantêm suas evidências anteriores; não foram repetidos nessa execução.
+
+## Histórico de validações
+
+As seções abaixo preservam os registros de cada etapa. Menções a verificações pendentes ou à ausência de publicação descrevem a situação naquele momento; devem ser lidas junto das atualizações posteriores e do status atual acima.
 ## Opcionais acrescentados — 18/10/2026
 
 Benchmark separado: smoke com -race (100 chamadas, quatro clientes/carteiras) aprovado;
